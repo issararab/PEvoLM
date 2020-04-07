@@ -35,7 +35,8 @@ class MyDataset(data.Dataset):
         # retrieve sequence from list
         X = self.list_sequences[index]
         # Get PSSM labels
-        Y = self.labels_dictionnary[header]
+        #Y = self.labels_dictionnary[header]
+        np.concatenate((np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),self.labels_dictionnary[header],np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])), axis=0)
         return X, Y, self.predict_next_pssm, self.predict_next_aa
 
 
@@ -44,7 +45,7 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
     (xxx, yyy_pssm, predict_PSSM, predict_AA) = zip(*batch)
     ##Get embeddings
     ##Get list of lists
-    seqs = [list(xx) for xx in xxx]
+    seqs = [['<s>'] + list(xx) +['<\s>'] for xx in xxx]
     ##Sort them by length and keep the indexes
     list_of_tuples = sorted(enumerate(seqs), key=lambda x: len(x[1]))
 
