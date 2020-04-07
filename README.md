@@ -11,4 +11,4 @@ Variational Inference to Learn Representation of Protein Evolutionary Informatio
 The ELMo model trained on UniRef50 (=SeqVec) is available at:
 [SeqVec-model](https://rostlab.org/~deepppi/seqvec.zip)
 
-Please download the weights, copy the files, and paste them in the folder "seq_vec_model"
+Please download the weights, copy the file, and paste it in the folder "seq_vec_model"
