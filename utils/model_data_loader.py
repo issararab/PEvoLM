@@ -36,7 +36,7 @@ class MyDataset(data.Dataset):
         X = self.list_sequences[index]
         # Get PSSM labels
         #Y = self.labels_dictionnary[header]
-        np.concatenate((np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),self.labels_dictionnary[header],np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])), axis=0)
+        Y = np.concatenate((np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),self.labels_dictionnary[header],np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])), axis=0)
         return X, Y, self.predict_next_pssm, self.predict_next_aa
 
 
