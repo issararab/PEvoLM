@@ -35,8 +35,8 @@ class MyDataset(data.Dataset):
         # retrieve sequence from list
         X = self.list_sequences[index]
         # Get PSSM labels
-        Y = self.labels_dictionnary[header]
-        #Y = np.concatenate((np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),self.labels_dictionnary[header],np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])), axis=0)
+        #Y = self.labels_dictionnary[header]
+        Y = np.concatenate((np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]),self.labels_dictionnary[header],np.array([[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]])), axis=0)
         return X, Y, self.predict_next_pssm, self.predict_next_aa
 
 
@@ -45,7 +45,7 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
     (xxx, yyy_pssm, predict_PSSM, predict_AA) = zip(*batch)
     ##Get embeddings
     ##Get list of lists
-    #seqs = [['<s>'] + list(xx) +['<\s>'] for xx in xxx]
+    seqs = [['<s>'] + list(xx) +['<\s>'] for xx in xxx]
     ##Sort them by length and keep the indexes
     list_of_tuples = sorted(enumerate(seqs), key=lambda x: len(x[1]))
 
@@ -59,8 +59,6 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
     for tupl in list_of_tuples:
         seqs.append(tupl[1])
         seqs_one_hot_encoding.append(get_sequence_aa_one_hot_encoding(tupl[1]))
-        #print('***************************************')
-        #print(seqs_one_hot_encoding[-1])
         pssm_labels.append(yyy_pssm[tupl[0]])
         if len(tupl[1]) <= seq_length_threshold:
             threshold_len_index = len(seqs)
