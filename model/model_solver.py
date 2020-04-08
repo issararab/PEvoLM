@@ -159,7 +159,7 @@ class Solver(object):
         self.valset_loss_history_pssm.append(np.mean(mini_batch_val_loss_history_pssm))
         self.valset_loss_history_aa.append(np.mean(mini_batch_val_loss_history_aa))
 
-    def train(self, train_loader, val_loader, tot_iters=0, processed_iters=0, best_val_loss=100,
+    def train(self, batch_id,train_loader, val_loader, tot_iters=0, processed_iters=0, best_val_loss=100,
               log_nth=1, model_name='Next_PSSM_Prediction'):
         """
         Inputs:
@@ -184,7 +184,7 @@ class Solver(object):
         for i, (inputs, targets_pssm, targets_aa, seq_lens) in enumerate(train_loader, 1):
             inputs = inputs.cpu()
             if self.model.predict_next_pssm:
-                # Get probabilities for training targets
+                # Get probabilities for training targets in case of predicting next pssm
                 targets_pssm = targets_pssm * 0.01
             ### ====> New training
             ##Starting parameters for Truncated BPTT
@@ -193,8 +193,6 @@ class Solver(object):
             time_steps_loss_history_aa = []
             time_steps_loss_history_combined = []
             #print('Initial lengths lis: {}'.format(seq_lens))
-            #for param in self.model.parameters():
-            # print(param.data)
             for chunked_inputs, chunked_targets_pssm, chunked_targets_aa, new_seq_len, count_new_processed_seqs in self.tbptt_batches(
                     inputs, seq_lens, targets_pssm, targets_aa, self.model.predict_next_pssm, self.model.predict_next_aa):
                 #print(new_seq_len)
@@ -252,62 +250,55 @@ class Solver(object):
             mini_batch_loss_history_aa.append(np.mean(time_steps_loss_history_aa))
             # Log the loss
             if (log_nth and i % log_nth == 0) or i == len(train_loader) or (processed_iters + i) == 1:
+                ## Case - first log
                 if (processed_iters + i) == 1:
                     print('********************************************************************')
                     print('*******************   INITIAL VALIDATION LOSS   ********************')
                     print('********************************************************************')
                     if self.model.predict_next_pssm and self.model.predict_next_aa:
-                        print('Validation loss => Combined: %.3f' % \
-                              (self.valset_loss_history_combined[-1]))
+                        print('[Batch In Process: %d][Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
+                              (batch_id, processed_iters + i,
+                               tot_iters,
+                               mini_batch_loss_history_combined[-1], self.valset_loss_history_combined[-1]))
                     if self.model.predict_next_aa:
-                        print('Validation loss => AA: %.3f' % \
-                              (self.valset_loss_history_aa[-1]))
+                        print('[Batch In Process: %d][Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
+                              (batch_id, processed_iters + i,
+                               tot_iters,
+                               mini_batch_loss_history_aa[-1], self.valset_loss_history_aa[-1]))
                     if self.model.predict_next_pssm:
-                        print('Validation loss => PSSM: %.3f' % \
-                              (self.valset_loss_history_pssm[-1]))
-                print('********************************************************************')
-                if self.model.predict_next_pssm and self.model.predict_next_aa:
-                    print('[Iteration %d/%d] combined loss => Train: %.3f' % \
-                          (processed_iters + i,
-                           tot_iters,
-                           mini_batch_loss_history_combined[-1]))
-                if self.model.predict_next_pssm:
-                    print('[Iteration %d/%d] pssm loss => Train: %.3f' % \
-                          (processed_iters + i,
-                           tot_iters,
-                           mini_batch_loss_history_pssm[-1]))
-                if self.model.predict_next_aa:
-                    print('[Iteration %d/%d] aa loss => Train: %.3f' % \
-                          (processed_iters + i,
-                           tot_iters,
-                           mini_batch_loss_history_aa[-1]))
-                ## Compute Validation Loss and log
-                if i == len(train_loader):
+                        print('[Batch In Process: %d][Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
+                              (batch_id, processed_iters + i,
+                               tot_iters,
+                               mini_batch_loss_history_pssm[-1], self.valset_loss_history_pssm[-1]))
+                    print('********************************************************************')
+                ## Case - meeting log criterion
+                if (log_nth and i % log_nth == 0) or i == len(train_loader):
                     self.compute_validation_loss(val_loader)
-                    self.train_loss_history_combined.append(mini_batch_loss_history_combined)
-                    self.train_loss_history_pssm.append(mini_batch_loss_history_pssm)
-                    self.train_loss_history_aa.append(mini_batch_loss_history_aa)
-                    print('********************************************************************')
-                    print('**********************   BATCH SUMMARY   ***************************')
-                    print('********************************************************************')
+                    self.train_loss_history_combined.append(np.mean(mini_batch_loss_history_combined))
+                    self.train_loss_history_pssm.append(np.mean(mini_batch_loss_history_pssm))
+                    self.train_loss_history_aa.append(np.mean(mini_batch_loss_history_aa))
+
                     if self.model.predict_next_pssm and self.model.predict_next_aa:
-                        print('[Iteration %d/%d] combined loss => Train: %.3f / Val: %.3f ' % \
-                              (processed_iters + i,
+                        print('[Batch In Process: %d][Iteration %d/%d] COMBINED loss => Train: %.3f / Val: %.3f ' % \
+                              (batch_id,processed_iters + i,
                                tot_iters,
-                               np.mean(self.train_loss_history_combined[-1]), self.valset_loss_history_combined[-1]))
+                               self.train_loss_history_combined[-1], self.valset_loss_history_combined[-1]))
                     if self.model.predict_next_pssm:
-                        print('[Iteration %d/%d] pssm loss => Train: %.3f / Val: %.3f ' % \
-                              (processed_iters + i,
+                        print('[Batch In Process: %d][Iteration %d/%d] PSSM loss => Train: %.3f / Val: %.3f ' % \
+                              (batch_id,processed_iters + i,
                                tot_iters,
-                               np.mean(self.train_loss_history_pssm[-1]), self.valset_loss_history_pssm[-1]))
+                               self.train_loss_history_pssm[-1], self.valset_loss_history_pssm[-1]))
                     if self.model.predict_next_aa:
-                        print('[Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
-                              (processed_iters + i,
+                        print('[Batch In Process: %d][Iteration %d/%d] AA loss => Train: %.3f / Val: %.3f ' % \
+                              (batch_id,processed_iters + i,
                                tot_iters,
-                               np.mean(self.train_loss_history_aa[-1]), self.valset_loss_history_aa[-1]))
+                               self.train_loss_history_aa[-1], self.valset_loss_history_aa[-1]))
                     print('********************************************************************')
                     # Save the histories
                     self._save__histories(model_name)
+                    mini_batch_loss_history_pssm = []
+                    mini_batch_loss_history_aa = []
+                    mini_batch_loss_history_combined = []
 
                 ## Check if a better model is found and save
                 thesis_model_dir = Path('../best_models')

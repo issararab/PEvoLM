@@ -13,16 +13,16 @@ train_config = {
     'predict_next_aa': True,
     'hidden_size': 256,
     'num_layers': 2,
-    'epochs': 10,
+    'epochs': 1,
     'max_seq_len_for_TBPTT': 300,
     'loss_harmony_weight': 0.5,
-    'log_frequency': 1,
+    'log_frequency': 30,
     'Learn_rate': 1e-3,
     'train_seq_path': '../inputs/train_set/',
     'train_label_path': '../labels/train_set/',
     'val_seq_path': '../inputs/val_set/',
     'val_label_path': '../labels/val_set/',
-    'model_name': 'predict_next_pssm_and_AA_2Layers_RNN_32BatchSize_hidensize256',
+    'model_name': 'predict_next_AA_2Layers_LSTM_32BatchSize_hidensize256',#predict_next_pssm_and_AA
     'batch_size': 32
 
 }
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     ##Proceed to training
     for epoch in range(train_config['epochs']):
         input_10k_batches_to_process = 0
-        for batch_name, batch_data in training_data.items():
+        for batch_id,(batch_name, batch_data) in enumerate(training_data.items(),1):
             if input_10k_batches_to_process == 184:
                 break
             # Load pssm training labels
@@ -114,7 +114,7 @@ if __name__ == "__main__":
                                            shuffle=True,
                                            collate_fn=MyCollate)
 
-            best_val_loss, processed_iters = solver.train(train_loader=train_loader, val_loader=val_loader,
+            best_val_loss, processed_iters = solver.train(batch_id,train_loader=train_loader, val_loader=val_loader,
                                                           tot_iters=tot_iters, processed_iters=processed_iters,
                                                           best_val_loss=best_val_loss, log_nth=train_config['log_frequency'],
                                                           model_name=train_config['model_name'])
