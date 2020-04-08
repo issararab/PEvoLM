@@ -136,3 +136,4 @@ dmypy.json
 .idea/assetWizardSettings.xml
 .idea/dictionaries
 .idea/libraries
+.idea/*
