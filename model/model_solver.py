@@ -50,7 +50,7 @@ class Solver(object):
         self.valset_loss_history_combined = []
 
     def _save__histories(self ,model_name):
-        with open('../histories/ ' +model_name +'.data', 'wb') as filehandle:
+        with open('../histories/' +model_name +'.data', 'wb') as filehandle:
             # store the data as binary data stream
             histories = {
                 'train_loss_history_pssm' :self.train_loss_history_pssm,
