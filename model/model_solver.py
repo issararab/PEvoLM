@@ -251,6 +251,9 @@ class Solver(object):
             if (log_nth and i % log_nth == 0) or i == len(train_loader) or (processed_iters + i) == 1:
                 ## Case - first log
                 if (processed_iters + i) == 1:
+                    self.train_loss_history_combined.append(mini_batch_loss_history_combined[-1])
+                    self.train_loss_history_pssm.append(mini_batch_loss_history_pssm[-1])
+                    self.train_loss_history_aa.append(mini_batch_loss_history_aa[-1])
                     print('********************************************************************')
                     print('*******************   INITIAL VALIDATION LOSS   ********************')
                     print('********************************************************************')
