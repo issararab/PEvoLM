@@ -95,6 +95,7 @@ if __name__ == "__main__":
     tot_iters *= train_config['epochs']
     input_10k_batches_to_process = 0
     ##Proceed to training
+    print('START TRAIN.')
     for epoch in range(train_config['epochs']):
         input_10k_batches_to_process = 0
         for batch_id,(batch_name, batch_data) in enumerate(training_data.items(),1):
@@ -119,3 +120,4 @@ if __name__ == "__main__":
                                                           best_val_loss=best_val_loss, log_nth=train_config['log_frequency'],
                                                           model_name=train_config['model_name'])
             input_10k_batches_to_process += 1
+    print('FINISH.')

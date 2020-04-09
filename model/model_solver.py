@@ -173,7 +173,6 @@ class Solver(object):
         """
 
         iter_in_current_batch = len(train_loader)
-        print('START TRAIN.')
         if processed_iters == 0:
             ## Compute Validation Loss
             self.compute_validation_loss(val_loader)
@@ -319,5 +318,4 @@ class Solver(object):
                         ##Save model
                         self.model.save(path)
 
-        print('FINISH.')
         return best_val_loss, processed_iters + iter_in_current_batch
