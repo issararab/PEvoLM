@@ -11,7 +11,7 @@ from utils.model_data_loader import MyDataset,MyCollate
 train_config = {
     'predict_next_pssm': True,
     'predict_next_aa': True,
-    'hidden_size': 256,
+    'hidden_size': 512,
     'num_layers': 2,
     'epochs': 1,
     'max_seq_len_for_TBPTT': 300,
@@ -22,7 +22,7 @@ train_config = {
     'train_label_path': '../labels/train_set/',
     'val_seq_path': '../inputs/val_set/',
     'val_label_path': '../labels/val_set/',
-    'model_name': 'predict_next_AA_2Layers_LSTM_32BatchSize_hidensize256',#predict_next_pssm_and_AA
+    'model_name': 'predict_next_AA_2Layers_LSTM_32BatchSize_hidensize256_augmented_v2',#predict_next_pssm_and_AA
     'batch_size': 32
 
 }
@@ -86,20 +86,20 @@ if __name__ == "__main__":
     processed_iters = 0
     ##Count total number of training iterations
     tot_iters = 0
-    input_10k_batches_to_process = 0
-    for batch_name, batch_data in training_data.items():
-        if input_10k_batches_to_process == 184:
+    for batch_id, (batch_name, batch_data) in enumerate(training_data.items(), 1):
+        #if batch_id < 4:
+        #    continue
+        if batch_id == 185:
             break
         tot_iters += math.ceil(len(batch_data['Headers']) / train_config['batch_size'])
-        input_10k_batches_to_process += 1
     tot_iters *= train_config['epochs']
-    input_10k_batches_to_process = 0
     ##Proceed to training
     print('START TRAIN.')
     for epoch in range(train_config['epochs']):
-        input_10k_batches_to_process = 0
         for batch_id,(batch_name, batch_data) in enumerate(training_data.items(),1):
-            if input_10k_batches_to_process == 184:
+            #if batch_id < 4:
+            #    continue
+            if batch_id == 185:
                 break
             # Load pssm training labels
             with open(train_config['train_label_path'] + batch_name + '_labels.data', 'rb') as filehandle:
@@ -119,5 +119,4 @@ if __name__ == "__main__":
                                                           tot_iters=tot_iters, processed_iters=processed_iters,
                                                           best_val_loss=best_val_loss, log_nth=train_config['log_frequency'],
                                                           model_name=train_config['model_name'])
-            input_10k_batches_to_process += 1
     print('FINISH.')

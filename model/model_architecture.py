@@ -5,7 +5,7 @@ import torch.nn.functional as F
 import gettext as _
 
 class Inducer(torch.nn.Module):
-    def __init__(self,device_resource,input_size=512*3 + 20, hidden_size=256 ,num_layers=1 ,bi_directional=False
+    def __init__(self,device_resource,input_size=512*2+20, hidden_size=256 ,num_layers=1 ,bi_directional=False
                  ,predict_next_pssm=True, predict_next_aa=False):
         super(Inducer, self).__init__()
         ############################################################################

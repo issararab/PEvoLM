@@ -85,28 +85,33 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
 
     # Expanded SecVec embedding input, Expanded One-Hot encoding input, reshape, and concatinate
     for i,x_embedding in enumerate(xxx_embeddings):
-        x_embedding = torch.FloatTensor(x_embedding).permute(1 ,0 ,2).numpy()
+        x_embedding = torch.FloatTensor(x_embedding).permute(1 ,0 ,2)
         # Get forward and append
-        forward_embedding = x_embedding[: ,: ,:512]
-        forward_embedding = torch.from_numpy(forward_embedding[:-1 ,: ,:])
-        (L, C, W) = forward_embedding.size()
-        forward_embedding = forward_embedding.reshape(L,C*W)
+        forward_embedding = torch.cat((x_embedding[: ,0,:512],x_embedding[: ,-1 ,:512]),dim = 1)
+        forward_embedding = forward_embedding[:-1, :]
+        #forward_embedding = torch.from_numpy(forward_embedding[:-1 ,: ,:])
+        #(L, C, W) = forward_embedding.size()
+        #forward_embedding = forward_embedding.reshape(L,C*W)
         forward_1hot_encoding = seqs_one_hot_encoding[i]
         forward_1hot_encoding = torch.from_numpy(forward_1hot_encoding[:-1, :])
         forward_in = torch.cat((forward_embedding,forward_1hot_encoding.float()),dim = 1)
+        #expanded_xxx.append(forward_embedding)
         expanded_xxx.append(forward_in)
 
         # Get backward, reverse and append
-        backward_embedding = x_embedding[: ,: ,512:]
+        backward_embedding = x_embedding[: ,:,512:].numpy()
         backward_embedding = np.flip(backward_embedding ,0)  # also [::-1,:,:] can be used
-        backward_embedding = torch.from_numpy(backward_embedding[:-1, :, :].copy())
-        (L, C, W) = backward_embedding.size()
-        backward_embedding = backward_embedding.reshape(L, C * W)
+        backward_embedding = torch.cat((torch.from_numpy(backward_embedding[: ,0,:].copy()),torch.from_numpy(backward_embedding[: ,-1,:].copy())),dim = 1)
+        backward_embedding = backward_embedding[:-1, :]
+        #backward_embedding = torch.from_numpy(backward_embedding[:-1, :, :].copy())
+        #(L, C, W) = backward_embedding.size()
+        #backward_embedding = backward_embedding.reshape(L, C * W)
         backward_1hot_encoding = seqs_one_hot_encoding[i]
         backward_1hot_encoding = np.flip(backward_1hot_encoding, 0)  # [::-1,:,:]
         backward_1hot_encoding = torch.from_numpy(backward_1hot_encoding[:-1 ,:].copy())
         backward_in = torch.cat((backward_embedding, backward_1hot_encoding.float()), dim=1)
         expanded_xxx.append(backward_in)
+        #expanded_xxx.append(backward_embedding)
         # Get length of sequnces in order
         #Appended two times as we have a forward and a backward traversal of the sequence
         xx_lens.append(len(expanded_xxx[-1]))

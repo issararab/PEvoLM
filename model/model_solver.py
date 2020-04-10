@@ -67,12 +67,19 @@ class Solver(object):
         num_chunks = math.ceil(seq_lens[0] / max_seq_len)
         count_tot_processed_seqs = 0
         count_new_processed_seqs = 0
-        max_seq_margin = 0.3
+        max_seq_margin = 0.5
+        all_seqs_processed = False
         for k in range(1 , num_chunks+2):
             new_seq_len = [max_seq_len if max_seq_len * k <= x else x% max_seq_len if (max_seq_len * (k - 1) + x % max_seq_len) == x else 0 for x in seq_lens]
-            if k + 1 == num_chunks and seq_lens[0] % max_seq_len <= max_seq_len * max_seq_margin:
-                add_residues_to_training = [max_seq_len if max_seq_len * num_chunks <= x else x % max_seq_len if (max_seq_len * (num_chunks - 1) + x % max_seq_len) == x else 0 for x in seq_lens]
+            if k + 1 == num_chunks and seq_lens[0] % max_seq_len <= max_seq_len * max_seq_margin and seq_lens[0] % max_seq_len > 0:
+                add_residues_to_training = [x % max_seq_len if (max_seq_len * (num_chunks - 1) + x % max_seq_len) == x else 0 for x in seq_lens]
                 new_seq_len = np.add(new_seq_len, add_residues_to_training).tolist()
+            if new_seq_len[0] == max_seq_len and new_seq_len[4] == 0: #Computing resources based decision - depends on the batch size and the GPU memory
+                if new_seq_len[3] != 0:                               #Condition block can be removed if only chunks of same size want to be processed
+                    new_seq_len[0] = new_seq_len[1] = seq_lens[0] - max_seq_len * (k-1)
+                    new_seq_len[2] = new_seq_len[3] = seq_lens[2] - max_seq_len * (k-1)
+                else:
+                    new_seq_len[0] = new_seq_len[1] = seq_lens[0] - max_seq_len * (k-1)
             count_new_processed_seqs = new_seq_len.count(0) - count_tot_processed_seqs
             count_tot_processed_seqs = new_seq_len.count(0)
             if count_tot_processed_seqs:
@@ -95,7 +102,7 @@ class Solver(object):
                 yield chunked_inputs, _, chunked_targets_aa, new_seq_len, count_new_processed_seqs
             ## Break the loop in case of whole original batch fits the max_length threshold
             ## or the next few remaining residues in sequence is bellow the 30% max_length threshold
-            if k == num_chunks or num_chunks == 0 or (k + 1 == num_chunks and seq_lens[0] % max_seq_len < max_seq_len * max_seq_margin):
+            if new_seq_len[0] > max_seq_len or k == num_chunks or num_chunks == 0:
                 break
 
     def compute_validation_loss(self, val_loader):
@@ -113,9 +120,11 @@ class Solver(object):
             time_steps_val_loss_history_pssm = []
             time_steps_val_loss_history_aa = []
             time_steps_val_loss_history_combined = []
+            #print('Initial lengths list: {}'.format(val_seq_lens))
             for val_chunked_inputs, val_chunked_targets_pssm, val_chunked_targets_aa, new_seq_len, count_new_processed_seqs in self.tbptt_batches(
                     val_inputs, val_seq_lens, val_targets_pssm, val_targets_aa, self.model.predict_next_pssm,
                     self.model.predict_next_aa):
+                #print('Chuncked lengths list: {}'.format(new_seq_len))
                 # ==> Process input regardless of the path
                 val_chunked_inputs = val_chunked_inputs.to(self.device).float()
                 # get output from the model, given the inputs
@@ -191,10 +200,10 @@ class Solver(object):
             time_steps_loss_history_pssm = []
             time_steps_loss_history_aa = []
             time_steps_loss_history_combined = []
-            #print('Initial lengths lis: {}'.format(seq_lens))
+            #print('Initial lengths list: {}'.format(seq_lens))
             for chunked_inputs, chunked_targets_pssm, chunked_targets_aa, new_seq_len, count_new_processed_seqs in self.tbptt_batches(
                     inputs, seq_lens, targets_pssm, targets_aa, self.model.predict_next_pssm, self.model.predict_next_aa):
-                #print(new_seq_len)
+                #print('Chuncked lengths list: {}'.format(new_seq_len))
                 # ==> Process input regardless of the path
                 # Clear gradient buffers because we don't want any gradient from previous epoch to carry forward, dont want to cummulate gradients
                 self.optim.zero_grad()
@@ -261,17 +270,17 @@ class Solver(object):
                         print('[Batch In Process: %d][Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
                               (batch_id, processed_iters + i,
                                tot_iters,
-                               mini_batch_loss_history_combined[-1], self.valset_loss_history_combined[-1]))
+                               self.train_loss_history_combined[-1], self.valset_loss_history_combined[-1]))
                     if self.model.predict_next_aa:
                         print('[Batch In Process: %d][Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
                               (batch_id, processed_iters + i,
                                tot_iters,
-                               mini_batch_loss_history_aa[-1], self.valset_loss_history_aa[-1]))
+                               self.train_loss_history_aa[-1], self.valset_loss_history_aa[-1]))
                     if self.model.predict_next_pssm:
                         print('[Batch In Process: %d][Iteration %d/%d] aa loss => Train: %.3f / Val: %.3f ' % \
                               (batch_id, processed_iters + i,
                                tot_iters,
-                               mini_batch_loss_history_pssm[-1], self.valset_loss_history_pssm[-1]))
+                               self.train_loss_history_pssm[-1], self.valset_loss_history_pssm[-1]))
                     print('********************************************************************')
                 ## Case - meeting log criterion
                 if (log_nth and i % log_nth == 0) or i == len(train_loader):
