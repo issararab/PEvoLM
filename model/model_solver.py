@@ -74,12 +74,6 @@ class Solver(object):
             if k + 1 == num_chunks and seq_lens[0] % max_seq_len <= max_seq_len * max_seq_margin and seq_lens[0] % max_seq_len > 0:
                 add_residues_to_training = [x % max_seq_len if (max_seq_len * (num_chunks - 1) + x % max_seq_len) == x else 0 for x in seq_lens]
                 new_seq_len = np.add(new_seq_len, add_residues_to_training).tolist()
-            #if new_seq_len[0] == max_seq_len and new_seq_len[4] == 0: #Computing resources based decision - depends on the batch size and the GPU memory
-            #    if new_seq_len[3] != 0:                               #Condition block can be removed if only chunks of same size want to be processed
-            #        new_seq_len[0] = new_seq_len[1] = seq_lens[0] - max_seq_len * (k-1)
-            #        new_seq_len[2] = new_seq_len[3] = seq_lens[2] - max_seq_len * (k-1)
-            #    else:
-            #        new_seq_len[0] = new_seq_len[1] = seq_lens[0] - max_seq_len * (k-1)
             count_new_processed_seqs = new_seq_len.count(0) - count_tot_processed_seqs
             count_tot_processed_seqs = new_seq_len.count(0)
             if count_tot_processed_seqs:
