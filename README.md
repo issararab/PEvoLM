@@ -1,5 +1,5 @@
 # Evol_Info_Prediction
-Variational Inference to Learn Representation of Protein Evolutionary Information
+Variational Inference to Learn Representations of Protein Evolutionary Information
 
 ## Requirements
 
