@@ -11,7 +11,7 @@ from utils.model_data_loader import MyDataset,MyCollate
 train_config = {
     'predict_next_pssm': True,
     'predict_next_aa': True,
-    'hidden_size': 512,
+    'hidden_size': 256,
     'num_layers': 2,
     'epochs': 1,
     'max_seq_len_for_TBPTT': 300,
