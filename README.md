@@ -1,4 +1,4 @@
-# Evol_Info_Prediction
+# Sequence Evolution Language Model Embedder (Seq_Evo_LM embedder)
 Variational Inference to Learn Representation of Protein Evolutionary Information
 
 ## Requirements
@@ -14,4 +14,4 @@ The ELMo model trained on UniRef50 (=SeqVec) is available at:
 Please download the weights, copy the file, and paste it in the folder "seq_vec"
 
 ## seq_evo_lm_ModelWeights
-Please download the weights sent to you and put the file "multitask_lm_weights.pt" in the folder "seq_evo_lm".
+"seq_evo_lm" folder contains the pre-trained weights of this language model trained on 150K unique protein sequences. The model was trained on predicting both the next amino acid and the next PSSM column from both directions of a sequence (2-layer Bidirectional LSTMs with projections).
