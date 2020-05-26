@@ -12,3 +12,6 @@ The ELMo model trained on UniRef50 (=SeqVec) is available at:
 [SeqVec-model](https://rostlab.org/~deepppi/seqvec.zip)
 
 Please download the weights, copy the file, and paste it in the folder "seq_vec_model"
+
+## Sequence Evolution Language Model embedder (Seq_Evo_LM)
+![](SCMS_UML.png?style=centerme)
