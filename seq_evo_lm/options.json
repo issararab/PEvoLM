@@ -1,0 +1,22 @@
+{
+    "predict_next_pssm": true,
+    "predict_next_aa": true,
+    "loss_harmony_weight": 0.75,
+    "clip_norm_value": 1.0,
+    "model_name": "multitask_lm_weights",
+    "dropout": 0.1,
+    "lstmp":
+      {"n_layers": 2,
+        "cell_clip": 3,
+        "proj_clip": 3,
+        "hidden_size": 2048,
+        "projection_size": 256,
+        "dropout_rate": 0.1,
+        "use_skip_connections": true},
+    "n_epochs": 1,
+    "n_train_tokens": 450000,
+    "batch_size": 32,
+    "n_tokens_vocab": 23,
+    "unroll_steps": 300,
+    "use_gpu": true
+}
