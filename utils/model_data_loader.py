@@ -3,7 +3,7 @@ import torch
 from torch.utils import data
 from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence
 from utils.aa_encodings import  aa_class_labels_dic, aa_one_hot_encoding_dic
-from utils.seq_vec_embedder import embedder
+from utils.seq_vec_embedder import embedder, start_token_embed, end_token_embed
 import gettext as _
 
 def get_next_aa_labels(sequence):
@@ -45,40 +45,44 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
     (xxx, yyy_pssm, predict_PSSM, predict_AA) = zip(*batch)
     ##Get embeddings
     ##Get list of lists
-    seqs = [['<s>'] + list(xx) +['<\s>'] for xx in xxx]
+    seqs = [['<s>'] + list(xx) + ['<\s>'] for xx in xxx]
     ##Sort them by length and keep the indexes
     list_of_tuples = sorted(enumerate(seqs), key=lambda x: len(x[1]))
 
     ##Organize the sequences with their corresponding length order
-    seq_length_threshold = 1000 #Length threshold to extract SeqVec embeddings in parallel
+    seq_length_threshold = 500 #Length threshold to extract SeqVec embeddings in parallel
     threshold_len_index = -1    #Seq index meeting the sequnce length threshold in the sorted list
 
     seqs = []
+    pure_seqs = []
     seqs_one_hot_encoding = []
     pssm_labels = []
     for tupl in list_of_tuples:
         seqs.append(tupl[1])
+        pure_seqs.append(tupl[1][1:-1])
         seqs_one_hot_encoding.append(get_sequence_aa_one_hot_encoding(tupl[1]))
         pssm_labels.append(yyy_pssm[tupl[0]])
-        if len(tupl[1]) <= seq_length_threshold:
-            threshold_len_index = len(seqs)
+        if len(tupl[1][1:-1]) <= seq_length_threshold:
+            threshold_len_index = len(pure_seqs)
 
     del list_of_tuples, yyy_pssm, xxx
 
     if threshold_len_index != -1:
-        if threshold_len_index == len(seqs):
-            xxx_embeddings = embedder.embed_sentences(seqs)
+        if threshold_len_index == len(pure_seqs):
+            xxx_embeddings = embedder.embed_sentences(pure_seqs)
         else:
-            xxx_embeddings_temp = embedder.embed_sentences(seqs[:threshold_len_index])
+            xxx_embeddings_temp = embedder.embed_sentences(pure_seqs[:threshold_len_index])
             xxx_embeddings = [embedding for embedding in xxx_embeddings_temp]
-            xxx_embeddings += [embedder.embed_sentence(seq) for seq in seqs[threshold_len_index:]]
+            xxx_embeddings += [embedder.embed_sentence(seq) for seq in pure_seqs[threshold_len_index:]]
     else:
-        xxx_embeddings = [embedder.embed_sentence(seq) for seq in seqs]
+        xxx_embeddings = [embedder.embed_sentence(seq) for seq in pure_seqs]
 
     # xxx_embeddings = embedder.embed_sentences(seqs)
 
     ##Split embedding tensors and concate with 1Hot encodings
-    expanded_xxx = []
+    #expanded_xxx = []
+    uncon_expanded_xxx = []
+    con_expanded_xxx = []
     expanded_yyy_pssm = []
     expanded_yyy_aa = []
     xx_lens = []
@@ -86,36 +90,36 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
     # Expanded SecVec embedding input, Expanded One-Hot encoding input, reshape, and concatinate
     for i,x_embedding in enumerate(xxx_embeddings):
         x_embedding = torch.FloatTensor(x_embedding).permute(1 ,0 ,2)
-        # Get forward and append
-        forward_embedding = torch.cat((x_embedding[: ,0,:512],x_embedding[: ,-1 ,:512]),dim = 1)
-        forward_embedding = forward_embedding[:-1, :]
-        #forward_embedding = torch.from_numpy(forward_embedding[:-1 ,: ,:])
-        #(L, C, W) = forward_embedding.size()
-        #forward_embedding = forward_embedding.reshape(L,C*W)
+        x_embedding = torch.cat((start_token_embed,x_embedding,end_token_embed),dim=0)
+
+        # Get uncontextualized forward and append
+        forward_embedding = x_embedding[:-1 ,0,:512]
         forward_1hot_encoding = seqs_one_hot_encoding[i]
         forward_1hot_encoding = torch.from_numpy(forward_1hot_encoding[:-1, :])
-        forward_in = torch.cat((forward_embedding,forward_1hot_encoding.float()),dim = 1)
-        #expanded_xxx.append(forward_embedding)
-        expanded_xxx.append(forward_in)
+        forward_in_uncon = torch.cat((forward_embedding, forward_1hot_encoding.float()), dim=1)
+        uncon_expanded_xxx.append(forward_in_uncon)
+        # Get contextualized forward and append
+        forward_in_con = torch.cat((x_embedding[: ,1,:512],x_embedding[: ,2 ,:512]),dim = 1)
+        forward_in_con = forward_in_con[:-1, :]
+        con_expanded_xxx.append(forward_in_con)
 
-        # Get backward, reverse and append
+
+        # Get uncontextualized backward, reverse and append
         backward_embedding = x_embedding[: ,:,512:].numpy()
         backward_embedding = np.flip(backward_embedding ,0)  # also [::-1,:,:] can be used
-        backward_embedding = torch.cat((torch.from_numpy(backward_embedding[: ,0,:].copy()),torch.from_numpy(backward_embedding[: ,-1,:].copy())),dim = 1)
-        backward_embedding = backward_embedding[:-1, :]
-        #backward_embedding = torch.from_numpy(backward_embedding[:-1, :, :].copy())
-        #(L, C, W) = backward_embedding.size()
-        #backward_embedding = backward_embedding.reshape(L, C * W)
+        backward_embedding_uncon = torch.from_numpy(backward_embedding[:-1 ,0,:].copy())
         backward_1hot_encoding = seqs_one_hot_encoding[i]
         backward_1hot_encoding = np.flip(backward_1hot_encoding, 0)  # [::-1,:,:]
-        backward_1hot_encoding = torch.from_numpy(backward_1hot_encoding[:-1 ,:].copy())
-        backward_in = torch.cat((backward_embedding, backward_1hot_encoding.float()), dim=1)
-        expanded_xxx.append(backward_in)
-        #expanded_xxx.append(backward_embedding)
-        # Get length of sequnces in order
-        #Appended two times as we have a forward and a backward traversal of the sequence
-        xx_lens.append(len(expanded_xxx[-1]))
-        xx_lens.append(len(expanded_xxx[-1]))
+        backward_1hot_encoding = torch.from_numpy(backward_1hot_encoding[:-1, :].copy())
+        backward_in_uncon = torch.cat((backward_embedding_uncon, backward_1hot_encoding.float()), dim=1)
+        uncon_expanded_xxx.append(backward_in_uncon)
+        # Get contextualized backward and append
+        backward_in_con = torch.cat((torch.from_numpy(backward_embedding[: ,1,:].copy()),torch.from_numpy(backward_embedding[: ,2,:].copy())), dim=1)
+        backward_in_con = backward_in_con[:-1, :]
+        con_expanded_xxx.append(backward_in_con)
+
+        xx_lens.append(len(uncon_expanded_xxx[-1]))
+        xx_lens.append(len(uncon_expanded_xxx[-1]))
 
     # Expanded ground truth
     yy_pad_pssm, yy_pad_aa = _ ,_
@@ -128,7 +132,7 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
             backward = np.flip(y_pssm ,0)  # also [::-1,:,:] can be used
             expanded_yyy_pssm.append(torch.from_numpy(backward[1: ,:].copy()))
         # Pad sequences
-        yy_pad_pssm = pad_sequence(expanded_yyy_pssm, batch_first=True)
+        yy_pad_pssm = pad_sequence(expanded_yyy_pssm[::-1])
 
     if predict_AA[0]:
         # - AAs
@@ -140,18 +144,14 @@ def MyCollate(batch): #This function extracts SeqVec embedings, sequnce One-Hot 
             backward = np.flip(y_aa ,0  )  # y[::-1,:]
             expanded_yyy_aa.append(torch.from_numpy(backward[1:].copy()))
         # Pad sequences
-        yy_pad_aa = pad_sequence(expanded_yyy_aa, batch_first=True)
+        yy_pad_aa = pad_sequence(expanded_yyy_aa[::-1])
         del seqs
 
-    # Pad sequences
-    xx_pad = pad_sequence(expanded_xxx, batch_first=True)
-
-    #Reverse order of the batch to not affect the Truncated BPTT
+    # Reverse order of the batch to not affect the Truncated BPTT
     # as the batch is sorted in increasing order. -> Has to be sorted decreasing
-    xx_pad = torch.from_numpy(np.flip(xx_pad.numpy() ,0).copy())
-    if predict_PSSM[0]:
-        yy_pad_pssm = torch.from_numpy(np.flip(yy_pad_pssm.numpy() ,0).copy())
-    if predict_AA[0]:
-        yy_pad_aa = torch.from_numpy(np.flip(yy_pad_aa.numpy(), 0).copy())
+    # Pad sequences
+    uncon_xx_pad = pad_sequence(uncon_expanded_xxx[::-1])#, batch_first=True)
+    con_xx_pad = pad_sequence(con_expanded_xxx[::-1])#, batch_first=True)
     xx_lens = xx_lens[::-1]
-    return xx_pad, yy_pad_pssm, yy_pad_aa, xx_lens
+
+    return uncon_xx_pad, con_xx_pad, yy_pad_pssm, yy_pad_aa, xx_lens
