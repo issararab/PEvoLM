@@ -53,16 +53,16 @@ class SeqEvoLM(torch.nn.Module):
 
         embeddings = []
         for i, embedding in enumerate(uncon_x,0):
-            if not i%2:
+            if i%2:
                 uncon_embedding = torch.unsqueeze(embedding[1:seq_lens[i],:-20], dim=0)
                 lstmp1_embedding = torch.unsqueeze(torch.cat((lstmp1_output[i,1:seq_lens[i],:],
                                                               torch.from_numpy(np.flip(
-                                                                  lstmp1_output[i + 1, 1:seq_lens[i], :].detach().numpy(),
+                                                                  lstmp1_output[i - 1, 1:seq_lens[i], :].detach().numpy(),
                                                                   0).copy())),dim=1),dim=0)
 
                 lstmp2_embedding = torch.unsqueeze(torch.cat((lstmp2_output[i,1:seq_lens[i],:],
                                                               torch.from_numpy(np.flip(
-                                                                  lstmp2_output[i + 1, 1:seq_lens[i], :].detach().numpy(),
+                                                                  lstmp2_output[i - 1, 1:seq_lens[i], :].detach().numpy(),
                                                                   0).copy())),dim=1),dim=0)
                 embeddings.append(torch.cat((uncon_embedding,lstmp1_embedding,lstmp2_embedding),dim=0))
 
