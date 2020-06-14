@@ -68,7 +68,7 @@ if __name__ == "__main__":
     model.load_state_dict(torch.load(path))
     ### Load saved model weights
 
-    solver = Solver(model= model,max_seq_len_for_TBPTT=train_config['max_seq_len_for_TBPTT'],
+    solver = Solver(model = torch.nn.DataParallel(model),max_seq_len_for_TBPTT=train_config['max_seq_len_for_TBPTT'],
                     device_resource=device,loss_harmony_weight=train_config['loss_harmony_weight'],
                     clip_norm_value = train_config['clip_norm_value'],
                     optim_args={"lr": train_config['Learn_rate']})
