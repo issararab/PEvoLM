@@ -43,7 +43,7 @@ class Inducer(torch.nn.Module):
         - trc_BPTT: Boolean to indicate that we are training using trancated BPTT
         """
         ############################################################################
-
+        print('\tInput size: {}'.format(input.shape))
         uncon_x, con_x = uncon_x.to(self.device), con_x.to(self.device)
         ## feed to LSTM layers
         ##Handle initialization of the trancated BPTT
