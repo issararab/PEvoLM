@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 import torch
 from utils.seq_evo_lm_data_loader import getSeqVecEmbeddings
@@ -25,6 +26,6 @@ def getSeqEvoLmEmbeddings(SeqEvoLmEmbedder,batch): #Function takes one string or
     embeddings = [embeddings[i] for i in original_indices]
     return embeddings
 
-model_dir = Path('seq_evo_lm')
+model_dir = Path(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'seq_evo_lm')))
 options = Path.joinpath(model_dir,'options.json')
 embedder = SeqEvoLmEmbedder(options)
