@@ -5,7 +5,7 @@ Variational Inference to Learn Representation of Protein Evolutionary Informatio
 
 *  Python>=3.6.5
 *  torch>=1.2.0
-*  allennlp
+*  allennlp, version = 0.9
 
 ## seq_vec_model
 The ELMo model trained on UniRef50 (=SeqVec) is available at:
