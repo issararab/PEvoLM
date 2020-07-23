@@ -15,7 +15,7 @@ def SeqEvoLmEmbedder(options):
         ### Load saved model weights
         thesis_model_dir = Path(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'seq_evo_lm')))
         path = Path.joinpath(thesis_model_dir, options['model_name']+ '.pt')
-        model.load_state_dict(torch.load(path))
+        model.load_state_dict(torch.load(path, map_location=device)))
         model = model.to(device)
         model.eval()
         return model
