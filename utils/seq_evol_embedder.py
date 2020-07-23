@@ -13,7 +13,7 @@ def SeqEvoLmEmbedder(options):
             device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         model = SeqEvoLM(device_resource=device,hidden_size=options['lstmp']['hidden_size'],projection_size=options['lstmp']['projection_size'],dropout_rate=options['lstmp']['dropout_rate'])
         ### Load saved model weights
-        thesis_model_dir = Path('seq_evo_lm')
+        thesis_model_dir = Path(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'seq_evo_lm')))
         path = Path.joinpath(thesis_model_dir, options['model_name']+ '.pt')
         model.load_state_dict(torch.load(path))
         model = model.to(device)
