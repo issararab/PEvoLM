@@ -1,5 +1,6 @@
 # Evol_Info_Prediction
-Variational Inference to Learn Representations of Protein Evolutionary Information
+Variational Inference to Learn Representations of Protein Evolutionary Information.
+This is a bi-directional language model embedding the protein sequence in a numerical representation incorporation evolutionary information.
 
 ## Requirements
 
