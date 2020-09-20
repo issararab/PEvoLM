@@ -3,7 +3,7 @@
     "predict_next_aa": true,
     "loss_harmony_weight": 0.75,
     "clip_norm_value": 1.0,
-    "model_name": "next_aa_lm_weights",
+    "model_name": "seq_evo_lm_weights",
     "dropout": 0.1,
     "lstmp":
       {"n_layers": 2,
@@ -14,7 +14,7 @@
         "dropout_rate": 0.1,
         "use_skip_connections": true},
     "n_epochs": 1,
-    "n_train_tokens": 680506270,
+    "n_train_tokens": 753614999,
     "batch_size": 128,
     "n_tokens_vocab": 23,
     "unroll_steps": 100,
