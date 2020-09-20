@@ -10,7 +10,7 @@ This is a bi-directional language model embedding the protein sequence in a nume
 
 *  Python>=3.6.5
 *  torch>=1.2.0
-*  allennlp
+*  allennlp v0.9
 
 ## seq_vec_model
 The ELMo model trained on UniRef50 (=SeqVec) is available at:
