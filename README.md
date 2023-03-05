@@ -1,4 +1,4 @@
-# Evol_Info_Prediction
+# Evolutionary Information Language Model
 Variational Inference to Learn Representations of Protein Evolutionary Information.
 
 This is a bi-directional language model embedding the protein sequence in a numerical representation encoding biophysical, biochemical, and the evolutionary information of the protein. The pretrained weights are availble in a sub-branch of the repo, 'Evol_Info_Embedder', trained on a set of 2 Million proteins in a cluster of GPUs granted by Google.
