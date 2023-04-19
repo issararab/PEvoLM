@@ -1,10 +1,13 @@
+import gettext as _
+
 import numpy as np
 import torch
 from torch.utils import data
 from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence
+
+
 from utils.aa_encodings import  aa_class_labels_dic, aa_one_hot_encoding_dic
 from utils.seq_vec_embedder import embedder, start_token_embed, end_token_embed
-import gettext as _
 
 def get_next_aa_labels(sequence):
     aa_labels = [aa_class_labels_dic.get(residue ,-1) for residue in sequence]

@@ -1,8 +1,10 @@
+import gettext as _
+
 import torch
-from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_sequence
 import torch.nn as nn
 import torch.nn.functional as F
-import gettext as _
+from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence, pad_packed_sequence
+
 from model.lstm_with_projection import LSTMPLayer
 
 

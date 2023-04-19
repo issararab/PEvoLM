@@ -1,12 +1,14 @@
+import gettext as _
+import math
+import math
+import sys
 from pathlib import Path
+
 import numpy as np
 import pickle
 import torch
 from torch.nn.utils.rnn import pad_sequence, pack_padded_sequence
-import math
-import gettext as _
-import math
-import sys
+
 
 class Solver(object):
     default_adam_args = {"lr": 1e-2,

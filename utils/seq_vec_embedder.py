@@ -1,6 +1,8 @@
 from pathlib import Path
-from allennlp.commands.elmo import ElmoEmbedder
+
 import torch
+from allennlp.commands.elmo import ElmoEmbedder
+
 
 ##Load SeqVec
 model_dir = Path('seq_vec_model')

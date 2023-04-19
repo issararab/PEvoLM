@@ -1,13 +1,16 @@
+import math
+import pickle
+import re
 import sys
 from pathlib import Path
-import pickle
+
 import torch
 from torch.utils import data
-import math
-import re
+
 from model.model_architecture import Inducer
-from model.model_solver import Solver
 from utils.model_data_loader import MyDataset,MyCollate
+from model.model_solver import Solver
+
 
 train_config = {
     'predict_next_pssm': True,

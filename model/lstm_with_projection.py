@@ -1,12 +1,14 @@
 import math
-import torch
-from torch.nn import init
-import torch.jit as jit
-from torch.nn import Parameter
-from torch import Tensor
-from typing import List, Tuple
-import torch.nn.functional as F
 import numbers
+from typing import List, Tuple
+
+import torch
+import torch.jit as jit
+import torch.nn.functional as F
+from torch import Tensor
+from torch.nn import init
+from torch.nn import Parameter
+
 
 class LSTMPCell(jit.ScriptModule):
     def __init__(self, input_size, hidden_size, output_projection_size, dropout_rate = 0.0, memory_cell_clip_value=3.0, state_projection_clip_value=5.0, input_projection_size = 1024):
