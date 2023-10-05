@@ -1,5 +1,5 @@
-# Sequence Evolution Language Model Embedder (Seq_Evo_LM embedder)
-Variational Inference to Learn Representation of Protein Evolutionary Information
+# PEvoLM
+Protein Sequence Evolutionary Information Language Model
 
 ## Requirements
 
