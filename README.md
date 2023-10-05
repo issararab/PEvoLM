@@ -4,7 +4,7 @@ Using Variational Inference to Learn Representations of Protein Evolutionary Inf
 This is a bi-directional language model embedding the protein sequence in a numerical representation encoding biophysical, biochemical, and the evolutionary information of the protein. The pretrained weights are availble in a sub-branch of the repo, 'Evol_Info_Embedder', trained on a set of 2 Million proteins in a cluster of GPUs granted by Google.
 
 ## Publication
-If you use PEvoLM in your work, please cite the following publications:
+If you use PEvoLM in your work, please cite the following publication:
 
 - I. Arab, **PEvoLM: Protein Sequence Evolutionary Information Language Model**, 2023 IEEE Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB), Eindhoven, Netherlands, 2023, pp. 1-8, [doi:10.1109/CIBCB56990.2023.10264890](https://ieeexplore.ieee.org/document/10264890)
 
