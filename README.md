@@ -6,7 +6,7 @@ This is a bi-directional language model embedding the protein sequence in a nume
 ## Publication
 If you use ANN-SoLo in your work, please cite the following publications:
 
-- I. Arab, **PEvoLM: Protein Sequence Evolutionary Information Language Model**, 2023 IEEE Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB), Eindhoven, Netherlands, 2023, pp. 1-8, doi: 10.1109/CIBCB56990.2023.10264890. [doi:10.1109/CIBCB56990.2023.10264890](https://ieeexplore.ieee.org/document/10264890)
+- I. Arab, **PEvoLM: Protein Sequence Evolutionary Information Language Model**, 2023 IEEE Conference on Computational Intelligence in Bioinformatics and Computational Biology (CIBCB), Eindhoven, Netherlands, 2023, pp. 1-8, [doi:10.1109/CIBCB56990.2023.10264890](https://ieeexplore.ieee.org/document/10264890)
 
 ## Protein Sequence Evolutionary Information Language Model (PEvoLM)
 ![](img/LM_architecture.jpg?style=centerme)
