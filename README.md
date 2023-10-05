@@ -13,7 +13,7 @@ The ELMo model trained on UniRef50 (=SeqVec) is available at:
 
 Please download the weights, copy the file, and paste it in the folder "seq_vec"
 
-## seq_evo_lm_ModelWeights
+## PEvoLM ModelWeights
 "seq_evo_lm" folder contains the pre-trained weights of this language model trained on 1.8 Million unique protein sequences. The model was trained on 2 GPUs of 16Gb of RAM each predicting both the next amino acid and the next PSSM column from both directions of a sequence (2-layer Bidirectional LSTMs with projections).
 
 The embeddings are of size [3, L, 512], where L is the sequence length.
